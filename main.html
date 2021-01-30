@@ -1,0 +1,123 @@
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>Графики курсов валют</title>
+    </head>
+    <style>
+        #KursChart { background-color : #eee;max-width:800px;max-height:550px}
+        .box{width:1000px;height:400px}
+        .diapason{width:180px;height:150px;display:inline-block;float:left}
+        .canvas{width:800px;height:700px;display: inline-block}
+    </style>
+    <body>
+        <div>
+            <h3>Курс доллара</h3>
+            <div id="kursdiv" сlass="box">
+                <div class='diapason'>
+                    <form>
+                        <strong>Начальная дата:</strong><input name='begin' id='begin' type='date'/>
+                        <strong>Конечная дата:</strong><input name='end' id='end' type='date' />
+                        <input type="button" value="Применить" onClick="getDiap()" />
+                    </form>
+                </div>
+                <div canvas='canvas'>
+                    <!--График долларов-->
+                    <canvas id="KursChart" width="100" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="./scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="./scripts/Chart.js"></script>
+    <script>
+        function getDiap(){
+            var usd=new Array();
+            var eur=new Array();
+            var vdate=new Array();
+            var begin=document.getElementById("begin").value;
+            var end=document.getElementById("end").value;
+            $.ajax({
+                type:"POST",
+                async:false,
+                url:"./getdata.php",
+                dataType:"json",
+                data:{
+                    'begin':begin,
+                    'end':end
+                },
+                timeout:3000,
+                success:function(result){
+					//console.log('good');
+                    var mas1=new Array();
+                    var mas2=new Array();
+                    var mas3=new Array();
+                    usd=mas1.concat(result['usd']);
+                    eur=mas3.concat(result['eur']);
+                    vdate=mas2.concat(result['date']);
+                    delete mas1;
+                    delete mas2;
+                    delete mas3;
+                },
+				error:function(xhr, ajaxOptions, thrownError) {
+			      //console.log(xhr.status);//200
+			      //console.log(thrownError);//ok
+			      //console.log(xhr.statusText);
+			      //console.log(xhr.responseText);
+			    }
+            });
+            new Chart(document.getElementById("KursChart"), {
+                type: 'line',
+                data: {
+                    labels: vdate,
+                    datasets: [{
+                        data: usd,
+                        label: "Доллар",
+                        borderColor: "#3e95cd",
+                        fill: false
+                    },
+                    {
+                        data: eur,
+                        label: "Евро",
+                        borderColor: "#8e5ea2",
+                        fill: false
+                    }]
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: "Курсы доллара и Евро по отношению к рублю"
+                    }
+                }
+            });
+        }
+        window.onload=function(){
+            var usd=new Array();
+            var eur=new Array();
+            var vdate=new Array();
+            new Chart(document.getElementById("KursChart"), {
+                type: 'line',
+                data: {
+                    labels: vdate,
+                    datasets: [{
+                        data: usd,
+                        label: "Доллар",
+                        borderColor: "#3e95cd",
+                        fill: false
+                    },
+                    {
+                        data: eur,
+                        label: "Евро",
+                        borderColor: "#8e5ea2",
+                        fill: false
+                    }]
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: "Курсы доллара и Евро по отношению к рублю"
+                    }
+                }
+            });
+        }
+    </script>
+</html>
